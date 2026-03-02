@@ -8,20 +8,28 @@ from typing import List, Dict, Optional
 class XiaohongshuPublisher:
     """发布模块 - 自动发布小红书笔记"""
 
-    def __init__(self):
+    def __init__(self, mock_mode: bool = False):
         self.username = os.getenv('XHS_USERNAME')
         self.password = os.getenv('XHS_PASSWORD')
         self.cookie = os.getenv('XHS_COOKIE')
         self.session = None
+        # 允许测试时启用mock模式
+        self._mock_mode = mock_mode
 
     def login(self) -> bool:
         """
         登录小红书账号
 
-        TODO: 实现真实的登录逻辑
-        - 方式1: 使用Cookie直接登录
-        - 方式2: 使用Selenium模拟登录
+        Returns:
+            bool: 登录是否成功
+
+        Raises:
+            ValueError: 未配置任何登录凭证
         """
+        if self._mock_mode:
+            print("[Publisher] Mock mode enabled - skipping credential check")
+            return True
+
         if self.cookie:
             print("[Publisher] Using cookie for authentication")
             # TODO: 验证cookie有效性
@@ -33,8 +41,9 @@ class XiaohongshuPublisher:
             # 可以使用Selenium或API调用
             return True
 
-        print("[Publisher] No credentials provided, using mock mode")
-        return True
+        # 无凭证时返回False而非假成功
+        print("[Publisher] ERROR: No credentials provided")
+        return False
 
     def upload_image(self, image_data: str) -> str:
         """

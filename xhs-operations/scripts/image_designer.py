@@ -20,24 +20,35 @@ class ImageDesigner:
             style: 风格模板 (default/modern/cute/minimal)
 
         Returns:
-            截图的base64编码
+            截图的base64编码 (PNG格式)
+
+        Note:
+            需要安装 playwright 并运行 playwright install chromium
+            或配置 ALIYUN_API_KEY 使用AI生图模式
         """
         html_template = self._generate_html(content, style)
 
-        # TODO: 使用Playwright或Selenium进行截图
-        # 示例代码:
-        # from playwright.sync_api import sync_playwright
-        # with sync_playwright() as p:
-        #     browser = p.chromium.launch()
-        #     page = browser.new_page()
-        #     page.set_content(html_template)
-        #     screenshot = page.screenshot()
-        #     browser.close()
-        # return base64.b64encode(screenshot).decode()
+        # 尝试使用Playwright进行截图
+        try:
+            from playwright.sync_api import sync_playwright
 
-        # 暂时返回HTML内容作为占位符
-        print(f"[ImageDesigner] Generated HTML ({len(html_template)} chars) for style: {style}")
-        return base64.b64encode(html_template.encode('utf-8')).decode('utf-8')
+            with sync_playwright() as p:
+                browser = p.chromium.launch()
+                page = browser.new_page()
+                page.set_content(html_template, wait_until='networkidle')
+                # 设置固定尺寸
+                page.set_viewport_size({'width': 800, 'height': 600})
+                screenshot = page.screenshot(type='png')
+                browser.close()
+                return base64.b64encode(screenshot).decode('utf-8')
+        except ImportError:
+            # Playwright未安装，返回错误提示
+            raise RuntimeError(
+                "Playwright not installed. Run: pip install playwright && playwright install chromium "
+                "Or use ai_gen mode with ALIYUN_API_KEY configured."
+            )
+        except Exception as e:
+            raise RuntimeError(f"Screenshot failed: {e}")
 
     def ai_generate(self, prompt: str, api: str = 'aliyun') -> str:
         """

@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 
 
@@ -8,12 +9,23 @@ class TopicDiscovery:
     """选题发现模块 - 从多个平台搜索热门内容"""
 
     def __init__(self):
+        # 支持的平台名称映射 (别名 -> 实际方法名)
+        self.platform_aliases = {
+            'wechat': 'wechat',
+            'x': 'x',
+            'twitter': 'x',
+            'xiaohongshu': 'xiaohongshu',
+            'xhs': 'xiaohongshu',  # 支持 xhs 作为xiaohongshu的别名
+            'reddit': 'reddit'
+        }
         self.platforms = {
             'wechat': self.search_wechat,
             'x': self.search_x,
             'xiaohongshu': self.search_xiaohongshu,
             'reddit': self.search_reddit
         }
+        # 动态日期（当前日期用于mock数据）
+        self._today = datetime.now()
 
     def search_wechat(self, keyword: str, limit: int = 10) -> List[Dict]:
         """
@@ -56,14 +68,16 @@ class TopicDiscovery:
         return self._mock_search('reddit', keyword, limit)
 
     def _mock_search(self, platform: str, keyword: str, limit: int) -> List[Dict]:
-        """模拟搜索结果 - 用于测试和开发"""
+        """模拟搜索结果 - 用于测试和开发（动态日期）"""
+        # 动态生成日期
+        d = self._today
         mock_data = {
             'wechat': [
                 {
                     'platform': 'wechat',
                     'title': f'{keyword}最新趋势分析',
                     'summary': '深度解析行业发展方向和未来趋势...',
-                    'publish_time': '2024-01-15',
+                    'publish_time': (d - timedelta(days=3)).strftime('%Y-%m-%d'),
                     'source': '科技前沿',
                     'url': f'https://mp.weixin.qq.com/s/example1',
                     'engagement': {'likes': 520, 'comments': 45}
@@ -72,7 +86,7 @@ class TopicDiscovery:
                     'platform': 'wechat',
                     'title': f'{keyword}使用指南',
                     'summary': '手把手教你快速上手...',
-                    'publish_time': '2024-01-10',
+                    'publish_time': (d - timedelta(days=7)).strftime('%Y-%m-%d'),
                     'source': '技术社区',
                     'url': f'https://mp.weixin.qq.com/s/example2',
                     'engagement': {'likes': 380, 'comments': 28}
@@ -83,7 +97,7 @@ class TopicDiscovery:
                     'platform': 'x',
                     'title': f'{keyword}热点讨论 #1',
                     'content': '关于这个话题的深度讨论...',
-                    'publish_time': '2024-01-14',
+                    'publish_time': (d - timedelta(days=2)).strftime('%Y-%m-%d'),
                     'author': '@tech_expert',
                     'url': 'https://twitter.com/example1',
                     'engagement': {'likes': 890, 'comments': 120}
@@ -94,7 +108,7 @@ class TopicDiscovery:
                     'platform': 'xiaohongshu',
                     'title': f'{keyword}真实使用体验',
                     'content': '姐妹们，真的太好用了！',
-                    'publish_time': '2024-01-13',
+                    'publish_time': (d - timedelta(days=1)).strftime('%Y-%m-%d'),
                     'author': '用户昵称',
                     'likes': 2340,
                     'comments': 156,
@@ -107,7 +121,7 @@ class TopicDiscovery:
                     'platform': 'reddit',
                     'title': f'[Discussion] {keyword} - 社区讨论',
                     'content': '欢迎大家分享自己的看法...',
-                    'publish_time': '2024-01-12',
+                    'publish_time': (d - timedelta(days=5)).strftime('%Y-%m-%d'),
                     'subreddit': f'r/{keyword}',
                     'upvotes': 456,
                     'url': 'https://reddit.com/r/example'
@@ -125,22 +139,35 @@ class TopicDiscovery:
         Args:
             keyword: 搜索关键词
             platforms: 目标平台列表 (默认全部)
+                         支持: wechat, x, twitter, xiaohongshu, xhs, reddit
             limit: 每个平台返回数量
 
         Returns:
             统一格式的选题列表
         """
         if platforms is None:
-            platforms = list(self.platforms.keys())
+            platforms = list(self.platform_aliases.keys())
 
         results = []
         for platform in platforms:
-            if platform in self.platforms:
-                try:
-                    platform_results = self.platforms[platform](keyword, limit)
-                    results.extend(platform_results)
-                except Exception as e:
-                    print(f"搜索{platform}失败: {e}")
+            # 解析平台别名
+            actual_platform = self.platform_aliases.get(platform)
+            if not actual_platform:
+                print(f"[TopicDiscovery] Unknown platform: {platform}, skipping")
+                continue
+
+            if actual_platform not in self.platforms:
+                print(f"[TopicDiscovery] Platform not implemented: {actual_platform}, skipping")
+                continue
+
+            try:
+                platform_results = self.platforms[actual_platform](keyword, limit)
+                # 统一平台标识
+                for r in platform_results:
+                    r['platform'] = actual_platform
+                results.extend(platform_results)
+            except Exception as e:
+                print(f"搜索{platform}失败: {e}")
 
         return results
 

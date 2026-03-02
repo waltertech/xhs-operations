@@ -78,7 +78,21 @@ def test_publisher():
     print("测试4: 发布模块")
     print("="*50)
 
-    publisher = XiaohongshuPublisher()
+    # 测试1: 无凭证且非mock模式，应返回失败
+    print("\n测试4a: 无凭证非mock模式")
+    publisher_no_creds = XiaohongshuPublisher(mock_mode=False)
+    result = publisher_no_creds.publish(
+        title="测试标题",
+        content="测试内容",
+        images=[],
+        topics=[]
+    )
+    assert result['success'] == False, "无凭证时应返回失败"
+    print("✓ 无凭证时正确返回失败")
+
+    # 测试2: mock模式，应返回成功
+    print("\n测试4b: mock模式")
+    publisher = XiaohongshuPublisher(mock_mode=True)
 
     result = publisher.publish(
         title="AI工具推荐 | 5个效率神器",

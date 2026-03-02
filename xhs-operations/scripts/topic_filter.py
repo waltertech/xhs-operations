@@ -71,38 +71,60 @@ class TopicFilter:
         except Exception:
             return 0.5
 
-    def calculate_differentiation(self, topic: Dict, existing_topics: List[Dict]) -> float:
+    def calculate_differentiation(self, topic: Dict, existing_topics: List[Dict],
+                                   all_topics: List[Dict] = None) -> float:
         """
         计算差异化分数
         与已有选题相似度越低，分数越高
+
+        Args:
+            topic: 当前选题
+            existing_topics: 历史已有选题列表
+            all_topics: 当前批次的所有选题（用于批次内差异化）
         """
-        if not existing_topics:
-            return 0.5
-
-        # 提取文本内容
+        # 提取当前选题文本
         current_text = self._extract_text(topic)
-        existing_texts = [self._extract_text(t) for t in existing_topics]
-
         if not current_text.strip():
             return 0.5
 
-        try:
-            vectorizer = TfidfVectorizer()
-            all_texts = [current_text] + existing_texts
-            tfidf_matrix = vectorizer.fit_transform(all_texts)
+        # 如果有历史选题，计算与历史的差异化
+        if existing_topics:
+            existing_texts = [self._extract_text(t) for t in existing_topics]
+            try:
+                vectorizer = TfidfVectorizer()
+                tfidf_matrix = vectorizer.fit_transform([current_text] + existing_texts)
 
-            # 计算与每个已有选题的相似度
-            similarities = []
-            for i in range(1, len(all_texts)):
-                sim = np.dot(tfidf_matrix[0], tfidf_matrix[i].T).toarray()[0][0]
-                similarities.append(sim)
+                similarities = []
+                for i in range(1, len(existing_texts) + 1):
+                    sim = np.dot(tfidf_matrix[0], tfidf_matrix[i].T).toarray()[0][0]
+                    similarities.append(sim)
 
-            # 返回 1 - 最高相似度
-            max_similarity = max(similarities) if similarities else 0
-            return 1.0 - max_similarity
-        except Exception:
-            # 如果TF-IDF失败，返回默认值
-            return 0.5
+                max_similarity = max(similarities) if similarities else 0
+                return 1.0 - max_similarity
+            except Exception:
+                pass
+
+        # 如果没有历史选题，但有当前批次选题，计算批次内差异化
+        if all_topics and len(all_topics) > 1:
+            other_topics = [t for t in all_topics if t is not topic]
+            other_texts = [self._extract_text(t) for t in other_topics]
+
+            try:
+                vectorizer = TfidfVectorizer()
+                tfidf_matrix = vectorizer.fit_transform([current_text] + other_texts)
+
+                similarities = []
+                for i in range(1, len(other_texts) + 1):
+                    sim = np.dot(tfidf_matrix[0], tfidf_matrix[i].T).toarray()[0][0]
+                    similarities.append(sim)
+
+                max_similarity = max(similarities) if similarities else 0
+                return 1.0 - max_similarity
+            except Exception:
+                pass
+
+        # 默认返回中等分数
+        return 0.5
 
     def _extract_text(self, topic: Dict) -> str:
         """从选题中提取文本用于相似度计算"""
@@ -138,7 +160,8 @@ class TopicFilter:
         for topic in topics:
             hotness = self.calculate_hotness(topic)
             timeliness = self.calculate_timeliness(topic)
-            differentiation = self.calculate_differentiation(topic, existing_topics)
+            # 传入所有topics用于批次内差异化计算
+            differentiation = self.calculate_differentiation(topic, existing_topics, topics)
 
             total = (
                 hotness * self.weights['hotness'] +
