@@ -1,0 +1,13 @@
+name: xhs-operations
+version: 0.1.0
+description: 小红书全流程运营skill，覆盖选题发现、内容撰写、配图设计、自动发布
+author: [你的名字]
+tags: [xiaohongshu, social-media, operations]
+routes:
+  __root__: ./prompts/__root__.md
+  topic-discovery: ./prompts/topic-discovery.md
+  topic-filter: ./prompts/topic-filter.md
+  content-writer: ./prompts/content-writer.md
+  title-generator: ./prompts/title-generator.md
+  image-designer: ./prompts/image-designer.md
+  publisher: ./prompts/publisher.md
