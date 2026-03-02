@@ -146,15 +146,23 @@ class TopicDiscovery:
             统一格式的选题列表
         """
         if platforms is None:
-            platforms = list(self.platform_aliases.keys())
+            # 使用实际平台列表，避免别名重复
+            platforms = list(self.platforms.keys())
 
         results = []
+        seen_platforms = set()  # 去重跟踪
+
         for platform in platforms:
             # 解析平台别名
             actual_platform = self.platform_aliases.get(platform)
             if not actual_platform:
                 print(f"[TopicDiscovery] Unknown platform: {platform}, skipping")
                 continue
+
+            # 去重：同一实际平台只搜索一次
+            if actual_platform in seen_platforms:
+                continue
+            seen_platforms.add(actual_platform)
 
             if actual_platform not in self.platforms:
                 print(f"[TopicDiscovery] Platform not implemented: {actual_platform}, skipping")
