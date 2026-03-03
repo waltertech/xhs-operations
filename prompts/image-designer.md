@@ -7,7 +7,7 @@
 
 ### 1. HTML截图模式 (html_screenshot)
 将内容渲染为HTML后截图
-- 适合文字卡片、信息图、海报
+- 适合文字卡片，信息图，海报
 - 成本极低（仅调用文本API生成HTML）
 - 可自定义风格模板
 
@@ -28,80 +28,67 @@
 - html_screenshot: 返回截图的base64 (PNG格式)
 - ai_gen: 返回生成的图片URL
 
-## HTML模板风格
+## 风格系统 (10种)
 
-### modern - 现代渐变风格 (推荐)
-- 渐变背景 (紫蓝渐变)
-- 白色玻璃卡片
-- 现代字体 (Space Grotesk)
-- 适合: 科技、效率工具推荐
+参考 baoyu-skills 小红书图片生成最佳实践:
 
-```
-<span class="tag">推荐</span>
-<h1>AI工具推荐</h1>
-<p>这5个神器让你的效率翻倍！</p>
-```
+| 风格 | 描述 | 适用场景 |
+|------|------|----------|
+| **cute** | 甜美可爱，经典小红书风格 | 美妆、穿搭、生活分享 |
+| **fresh** | 清新自然，干净清爽 | 健康、自然、生活方式 |
+| **warm** | 温暖友好，情感共鸣 | 个人故事、生活分享 |
+| **bold** | 高冲击力，吸睛 | 测评对比、避坑指南 |
+| **minimal** | 极简精致，专业 | 商务、专业内容 |
+| **retro** | 复古怀旧，潮流 | 经典、传统内容 |
+| **pop** | 活力四射，炫酷 | 活动、创意内容 |
+| **notion** | 手绘线稿，知性 | 干货知识、教程 |
+| **modern** | 现代渐变，科技感 | 科技、效率工具 |
+| **elegant** | 优雅精致，商务 | 专业知识、商业内容 |
+| **dark** | 深色科技 | 开发者、内容创作者 |
+| **glass** | 毛玻璃效果 | 时尚、设计类 |
 
-### elegant - 优雅精致风格
-- 浅灰背景
-- 纯白卡片 + 左侧装饰线
-- 衬线字体 (Archivo)
-- 适合: 专业内容、知识分享
+## 布局系统 (8种)
 
-```
-<div class="accent"></div>
-<h1>深度解读</h1>
-<p>关于ChatGPT的深度分析...</p>
-```
+| 布局 | 描述 | 适用场景 |
+|------|------|----------|
+| **sparse** | 稀疏布局 (1-2个要点) | 封面、吸睛内容 |
+| **balanced** | 平衡布局 (3-4个要点) | 标准内容 |
+| **dense** | 密集布局 (5-8个要点) | 知识卡片、干货 |
+| **list** | 列表布局 (4-7项) | 清单、排名 |
+| **comparison** | 对比前后对比、产品布局 | 对比 |
+| **flow** | 流程布局 | 教程、步骤 |
+| **mindmap** | 思维导图 | 知识整理 |
+| **quadrant** | 四象限布局 | 分析、分类 |
 
-### cute - 可爱活泼风格
-- 暖色渐变背景 (橙黄)
-- 粉色圆角卡片
-- 表情装饰
-- 适合: 生活分享、好物推荐
+## 风格 × 布局 组合矩阵
 
-```
-<span class="emoji">🌟</span>
-<h1>必看推荐</h1>
-<p>姐妹们！这个真的太好用了！</p>
-```
+| | sparse | balanced | dense | list | comparison | flow |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| cute | ✓✓ | ✓✓ | ✓ | ✓✓ | ✓ | ✓ |
+| fresh | ✓✓ | ✓✓ | ✓ | ✓ | ✓ | ✓✓ |
+| warm | ✓✓ | ✓✓ | ✓ | ✓ | ✓✓ | ✓ |
+| bold | ✓✓ | ✓ | ✓ | ✓✓ | ✓✓ | ✓ |
+| minimal | ✓✓ | ✓✓ | ✓✓ | ✓ | ✓ | ✓ |
+| notion | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ | ✓✓ |
 
-### minimal - 极简风格
-- 纯白背景
-- 细边框卡片
-- 无装饰
-- 适合: 简约主义者
+## 内容分析
 
-```
-<h1>极简生活</h1>
-<p>Less is more.</p>
-```
-
-### dark - 深色科技风格
-- 深蓝渐变背景
-- 半透明毛玻璃卡片
-- 发光效果
-- 适合: 开发者、内容创作者
+模块可以自动分析内容推荐合适的风格:
 
 ```
-<h1>Code Better</h1>
-<p>Write clean code, ship faster.</p>
+内容类型:
+- 种草/安利 → cute + balanced
+- 干货分享 → notion + dense
+- 个人故事 → warm + balanced
+- 测评对比 → bold + comparison
+- 教程步骤 → fresh + flow
+- 避坑指南 → bold + list
+- 清单合集 → cute + list
 ```
 
-### glass - 毛玻璃风格
-- 彩色渐变背景
-- 高斯模糊玻璃效果
-- 现代感强
-- 适合: 时尚、设计类内容
+## HTML模板规范
 
-```
-<h1>设计灵感</h1>
-<p>Beautiful design matters.</p>
-```
-
-## HTML生成规范
-
-参考何三笔记的 best practices:
+参考何三笔记 best practices:
 
 ### 1. 容器要求
 - 必须包含 `id="capture-container"` 的容器
@@ -112,23 +99,15 @@
 ```
 标题: 50px
 5个卡片: 5 × 80px = 400px
-4个箭头: 4 × 30px = 120px
-底部说明: 60px
 间距: 100px
 内边距: 80px
-总计: 810px
+总计: ~810px
 建议: min-height: 1000px (预留20%缓冲)
 ```
 
 ### 3. 布局对齐
 - 使用 flex 布局
-- 避免 `justify-content: center`（内容多时会被裁剪）
 - 推荐使用 `justify-content: flex-start`
-
-### 4. 样式建议
-- 所有样式内联在 style 属性中
-- 使用现代 CSS (flexbox, grid, 渐变)
-- 考虑响应式设计
 
 ## 使用示例
 
@@ -137,13 +116,36 @@ from image_designer import ImageDesigner
 
 designer = ImageDesigner()
 
-# HTML截图
+# 查看所有可用风格
+print(designer.get_available_styles())
+# ['cute', 'fresh', 'warm', 'bold', 'minimal', 'retro', 'pop', 'notion', 'modern', 'elegant', 'dark', 'glass']
+
+# HTML截图 - 推荐风格
 content = """
 <span class="tag">推荐</span>
 <h1>AI工具推荐</h1>
 <p>这5个神器让你的效率翻倍！</p>
 """
-img = designer.design(content, mode='html_screenshot', style='modern')
+img = designer.design(content, mode='html_screenshot', style='cute')
+```
+
+## 内容分析示例
+
+```python
+from content_analyzer import ContentAnalyzer
+
+analyzer = ContentAnalyzer()
+
+result = analyzer.analyze(
+    content="打工人必看！5个效率神器让你准时下班",
+    title="打工人必看！5个效率神器让你准时下班"
+)
+
+print(f"推荐风格: {result.recommended_style}")
+print(f"推荐布局: {result.recommended_layout}")
+print(f"内容类型: {result.content_type.value}")
+print(f"钩子分数: {result.hook_score}/5")
+print(f"大纲策略: {result.outline_strategy}")
 ```
 
 ## 依赖安装
