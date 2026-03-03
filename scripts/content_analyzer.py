@@ -129,6 +129,7 @@ class ContentAnalyzer:
     }
 
     # 内容信号 → 推荐风格/布局 (来自 baoyu-skills)
+    # 注意: 只使用 ImageDesigner 中实际存在的风格
     AUTO_SELECTION_MAP = {
         ("美", "时尚", "可爱", "女生", "粉色"): ("cute", "sparse"),
         ("健康", "自然", "清新", "有机"): ("fresh", "balanced"),
@@ -138,8 +139,8 @@ class ContentAnalyzer:
         ("经典", "复古", "传统", "怀旧"): ("retro", "balanced"),
         ("有趣", "惊喜", "哇", "厉害"): ("pop", "sparse"),
         ("知识", "概念", "效率", "软件"): ("notion", "dense"),
-        ("教育", "教程", "学习", "课堂"): ("chalkboard", "balanced"),
-        ("笔记", "手写", "学习指南", "真实"): ("study-notes", "dense"),
+        ("教育", "教程", "学习", "课堂"): ("notion", "balanced"),  # chalkboard → notion
+        ("笔记", "手写", "学习指南", "真实"): ("notion", "dense"),   # study-notes → notion
     }
 
     def analyze(self, content: str, title: str = "") -> ContentAnalysis:
@@ -168,10 +169,8 @@ class ContentAnalyzer:
         # 5. 分享触发点
         share_triggers = self._find_share_triggers(content)
 
-        # 6. 推荐风格和布局
-        style, layout = self.CONTENT_TYPE_MAP.get(
-            content_type, ("cute", "balanced")
-        )
+        # 6. 推荐风格和布局 (先尝试 AUTO_SELECTION_MAP，后备 CONTENT_TYPE_MAP)
+        style, layout = self._auto_select_style_layout(content)
 
         # 7. 大纲策略
         outline_strategy = self._determine_strategy(content_type, hook_score)
@@ -186,6 +185,19 @@ class ContentAnalyzer:
             share_triggers=share_triggers,
             outline_strategy=outline_strategy,
         )
+
+    def _auto_select_style_layout(self, content: str) -> tuple:
+        """根据内容关键词自动选择风格和布局"""
+        content_lower = content.lower()
+
+        # 遍历 AUTO_SELECTION_MAP，匹配关键词
+        for keywords, (style, layout) in self.AUTO_SELECTION_MAP.items():
+            for keyword in keywords:
+                if keyword in content_lower:
+                    return (style, layout)
+
+        # 如果没有匹配，返回默认值
+        return ("cute", "balanced")
 
     def _classify_content_type(self, content: str) -> ContentType:
         """内容类型分类"""

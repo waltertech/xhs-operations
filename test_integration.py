@@ -74,20 +74,24 @@ def test_image_designer():
 
 def test_publisher():
     """测试发布模块"""
+    import unittest.mock as mock
+
     print("\n" + "="*50)
     print("测试4: 发布模块")
-    print("="*50)
+    print("==="*50)
 
     # 测试1: 无凭证且非mock模式，应返回失败
+    # 使用mock隔离环境变量，确保测试稳定性
     print("\n测试4a: 无凭证非mock模式")
-    publisher_no_creds = XiaohongshuPublisher(mock_mode=False)
-    result = publisher_no_creds.publish(
-        title="测试标题",
-        content="测试内容",
-        images=[],
-        topics=[]
-    )
-    assert result['success'] == False, "无凭证时应返回失败"
+    with mock.patch.dict('os.environ', {}, clear=True):
+        publisher_no_creds = XiaohongshuPublisher(mock_mode=False)
+        result = publisher_no_creds.publish(
+            title="测试标题",
+            content="测试内容",
+            images=[],
+            topics=[]
+        )
+        assert result['success'] == False, "无凭证时应返回失败"
     print("✓ 无凭证时正确返回失败")
 
     # 测试2: mock模式，应返回成功

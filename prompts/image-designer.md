@@ -28,7 +28,7 @@
 - html_screenshot: 返回截图的base64 (PNG格式)
 - ai_gen: 返回生成的图片URL
 
-## 风格系统 (10种)
+## 风格系统 (12种)
 
 参考 baoyu-skills 小红书图片生成最佳实践:
 
