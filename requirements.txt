@@ -1,4 +1,36 @@
-scikit-learn>=1.0.0
-requests>=2.28.0
-numpy>=1.21.0
-playwright>=1.40.0
+# xhs-operations Python Dependencies
+
+# Core dependencies
+scikit-learn>=1.0.0        # 机器学习，用于选题筛选评分
+requests>=2.28.0          # HTTP请求，用于API调用
+numpy>=1.21.0             # 数值计算
+
+# Optional: Browser automation (for screenshot/automation)
+playwright>=1.40.0       # 浏览器自动化
+selenium>=4.0.0           # 备用浏览器自动化
+
+# Optional: AI APIs
+openai>=1.0.0             # OpenAI API (内容生成)
+anthropic>=0.18.0         # Claude API (内容生成)
+
+# Optional: Image processing
+Pillow>=9.0.0             # 图片处理
+aiohttp>=3.8.0            # 异步HTTP
+
+# Development/Testing
+pytest>=7.0.0             # 测试框架
+python-dotenv>=0.19.0     # 环境变量管理
+
+# ============================================
+# 安装说明
+# ============================================
+
+# 1. 安装所有依赖:
+#    pip install -r requirements.txt
+
+# 2. 安装Playwright浏览器 (可选):
+#    playwright install chromium
+
+# 3. 复制并配置环境变量:
+#    cp .env.example .env
+#    # 编辑 .env 填入你的API密钥
